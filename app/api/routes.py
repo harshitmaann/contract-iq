@@ -61,6 +61,7 @@ async def upload_pdf(
         "embeddings_created": len(chunk_records)
     }
 
+
 @router.post("/search")
 def search(
     request: SearchRequest,
@@ -79,6 +80,8 @@ def search(
             for row in results
         ]
     }
+
+
 @router.post("/ask")
 def ask(
     request: AskRequest,
@@ -100,7 +103,18 @@ def ask(
         chunks
     )
 
+    sources = [
+        {
+            "chunk_id": row.id,
+            "document_id": row.document_id,
+            "filename": row.filename,
+            "content": row.content[:300]
+        }
+        for row in results
+    ]
+
     return {
         "question": request.question,
-        "answer": answer
+        "answer": answer,
+        "sources": sources
     }

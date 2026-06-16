@@ -13,10 +13,14 @@ def search_chunks(
 
     sql = text("""
         SELECT
-            id,
-            content
-        FROM chunks
-        ORDER BY embedding <=> :embedding
+            c.id,
+            c.document_id,
+            d.filename,
+            c.content
+        FROM chunks c
+        JOIN documents d
+            ON c.document_id = d.id
+        ORDER BY c.embedding <=> :embedding
         LIMIT :limit
     """)
 
