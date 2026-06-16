@@ -12,6 +12,8 @@ from app.rag.document_service import create_document
 from app.rag.chunking import create_chunks
 from app.rag.chunk_service import save_chunks
 from app.rag.vector_service import embed_chunks
+from app.models.search_request import SearchRequest
+from app.rag.search_service import search_chunks
 
 router = APIRouter()
 
@@ -55,4 +57,23 @@ async def upload_pdf(
         "characters": document.character_count,
         "chunks_created": len(chunks),
         "embeddings_created": len(chunk_records)
+    }
+
+@router.post("/search")
+def search(
+    request: SearchRequest,
+    db: Session = Depends(get_db)
+):
+
+    results = search_chunks(
+        db=db,
+        question=request.question
+    )
+
+    return {
+        "question": request.question,
+        "results": [
+            row.content
+            for row in results
+        ]
     }
