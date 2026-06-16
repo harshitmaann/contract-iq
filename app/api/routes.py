@@ -11,6 +11,7 @@ from app.rag.pdf_processor import extract_pdf_text
 from app.rag.document_service import create_document
 from app.rag.chunking import create_chunks
 from app.rag.chunk_service import save_chunks
+from app.rag.vector_service import embed_chunks
 
 router = APIRouter()
 
@@ -36,10 +37,15 @@ async def upload_pdf(
         result["text"]
     )
 
-    save_chunks(
+    chunk_records = save_chunks(
         db=db,
         document_id=document.id,
         chunks=chunks
+    )
+
+    embed_chunks(
+        db=db,
+        chunk_records=chunk_records
     )
 
     return {
@@ -47,5 +53,6 @@ async def upload_pdf(
         "filename": document.filename,
         "pages": document.page_count,
         "characters": document.character_count,
-        "chunks_created": len(chunks)
+        "chunks_created": len(chunks),
+        "embeddings_created": len(chunk_records)
     }

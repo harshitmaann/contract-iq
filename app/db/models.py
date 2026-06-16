@@ -31,6 +31,6 @@ class Chunk(Base):
     content = Column(Text)
 
     embedding = Column(
-        Vector(1536),
+        Vector(384),
         nullable=True
 )
