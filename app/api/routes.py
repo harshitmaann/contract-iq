@@ -14,6 +14,8 @@ from app.rag.chunk_service import save_chunks
 from app.rag.vector_service import embed_chunks
 from app.models.search_request import SearchRequest
 from app.rag.search_service import search_chunks
+from app.models.ask_request import AskRequest
+from app.rag.llm_service import generate_answer
 
 router = APIRouter()
 
@@ -76,4 +78,29 @@ def search(
             row.content
             for row in results
         ]
+    }
+@router.post("/ask")
+def ask(
+    request: AskRequest,
+    db: Session = Depends(get_db)
+):
+
+    results = search_chunks(
+        db=db,
+        question=request.question
+    )
+
+    chunks = [
+        row.content
+        for row in results
+    ]
+
+    answer = generate_answer(
+        request.question,
+        chunks
+    )
+
+    return {
+        "question": request.question,
+        "answer": answer
     }
